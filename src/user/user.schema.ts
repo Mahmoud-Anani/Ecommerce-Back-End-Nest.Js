@@ -38,7 +38,7 @@ export class User {
   @Prop({
     type: Number,
   })
-  age: string;
+  age: number;
   @Prop({
     type: String,
   })
@@ -48,10 +48,10 @@ export class User {
   })
   address: string;
   @Prop({
-    type: String,
+    type: Boolean,
     enum: [false, true],
   })
-  active: string;
+  active: boolean;
   @Prop({
     type: String,
   })
