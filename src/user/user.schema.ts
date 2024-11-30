@@ -3,10 +3,64 @@ import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
-  @Prop()
+  @Prop({
+    type: String,
+    required: true,
+    min: [3, 'Name must be at least 3 characters'],
+    max: [30, 'Name must be at most 30 characters'],
+  })
   name: string;
+  @Prop({
+    type: String,
+    required: true,
+    unique: true,
+  })
+  email: string;
+  @Prop({
+    type: String,
+    required: true,
+    min: [3, 'password must be at least 3 characters'],
+    max: [20, 'password must be at most 20 characters'],
+  })
+  password: string;
+  @Prop({
+    type: String,
+    required: true,
+    enum: ['user', 'admin'],
+  })
+  role: string;
+  @Prop({
+    type: String,
+  })
+  avatar: string;
+  @Prop({
+    type: Number,
+  })
+  age: string;
+  @Prop({
+    type: String,
+  })
+  phoneNumber: string;
+  @Prop({
+    type: String,
+  })
+  address: string;
+  @Prop({
+    type: String,
+    enum: [false, true],
+  })
+  active: string;
+  @Prop({
+    type: String,
+  })
+  verificationCode: string;
+  @Prop({
+    type: String,
+    enum: ['male', 'female'],
+  })
+  gender: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
