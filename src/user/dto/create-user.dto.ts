@@ -45,7 +45,7 @@ export class CreateUserDto {
   // PhoneNumber
   @IsString({ message: 'phoneNumber must be a string' })
   @IsPhoneNumber('EG', {
-    message: 'phoneNumber must be a valid phone number',
+    message: 'phoneNumber must be a Egyptian phone number',
   })
   @IsOptional()
   phoneNumber: string;

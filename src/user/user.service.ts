@@ -139,4 +139,58 @@ export class UserService {
       message: 'User deleted successfully',
     };
   }
+
+  // ===================== For User =====================
+  // User Can Get Data
+  async getMe(payload) {
+    if (!payload._id) {
+      throw new NotFoundException('User not found');
+    }
+
+    const user = await this.userModel
+      .findById(payload._id)
+      .select('-password -__v');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      status: 200,
+      message: 'User found',
+      data: user,
+    };
+  }
+  // User Can Update Data
+  async updateMe(payload, updateUserDto: UpdateUserDto) {
+    if (!payload._id) {
+      throw new NotFoundException('User not found');
+    }
+    const user = await this.userModel
+      .findById(payload._id)
+      .select('-password -__v');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      status: 200,
+      message: 'User updated successfully',
+      data: await this.userModel
+        .findByIdAndUpdate(payload._id, updateUserDto, {
+          new: true,
+        })
+        .select('-password -__v'),
+    };
+  }
+  // User Can unActive Account
+  async deleteMe(payload) {
+    if (!payload._id) {
+      throw new NotFoundException('User not found');
+    }
+    const user = await this.userModel
+      .findById(payload._id)
+      .select('-password -__v');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    await this.userModel.findByIdAndUpdate(payload._id, { active: false });
+  }
 }

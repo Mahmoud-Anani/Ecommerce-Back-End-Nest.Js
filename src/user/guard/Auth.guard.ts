@@ -34,6 +34,11 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
 
+      if (payload._id) {
+        request['user'] = payload;
+        return true;
+      }
+
       if (
         !payload.role ||
         payload.role === '' ||
