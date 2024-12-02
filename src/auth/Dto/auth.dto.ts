@@ -29,3 +29,11 @@ export class SignInDto {
   @MaxLength(20, { message: 'password must be at most 20 characters' })
   password: string;
 }
+
+export class ResetPasswordDto {
+  // Email
+  @IsString({ message: 'Email must be a string' })
+  @MinLength(0, { message: 'Thie Email Must be Required' })
+  @IsEmail({}, { message: 'Email is not valid' })
+  email: string;
+}
