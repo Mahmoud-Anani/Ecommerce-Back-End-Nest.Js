@@ -60,9 +60,3 @@ export class AuthController {
     return this.authService.changePassword(changePasswordData);
   }
 }
-
-/*
-1- /reset-password
-2- /virify-code
-3- /change-password
-*/
