@@ -29,7 +29,7 @@ export class CategoryService {
   }
 
   async findAll() {
-    const category = await this.categoryModel.find();
+    const category = await this.categoryModel.find().select('-__v');
     return {
       status: 200,
       message: 'Categorys found',

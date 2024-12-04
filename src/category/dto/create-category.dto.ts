@@ -1,4 +1,10 @@
-import { IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateCategoryDto {
   @IsString({ message: 'name must be a string' })
@@ -8,5 +14,6 @@ export class CreateCategoryDto {
 
   @IsString({ message: 'image must be a string' })
   @IsUrl({}, { message: 'image must be a valid URL' })
+  @IsOptional()
   image: string;
 }
