@@ -10,6 +10,7 @@ import { SubCategoryModule } from './sub-category/sub-category.module';
 import { BrandModule } from './brand/brand.module';
 import { CouponModule } from './coupon/coupon.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
+import { RequestProductModule } from './request-product/request-product.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
     BrandModule,
     CouponModule,
     SuppliersModule,
+    RequestProductModule,
   ],
   controllers: [],
   providers: [],
