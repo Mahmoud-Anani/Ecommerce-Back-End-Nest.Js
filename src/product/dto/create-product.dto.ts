@@ -37,13 +37,13 @@ export class CreateProductDto {
 
   @IsNumber({}, { message: 'Price Must be a Number' })
   @Min(1, { message: 'price must be at least 1 L.E' })
-  @Max(20000, { message: 'price must be at least 20000 L.E' })
+  @Max(20000, { message: 'price must be at max 20000 L.E' })
   price: number;
 
   @IsOptional()
   @IsNumber({}, { message: 'priceAfterDiscount Must be a Number' })
   @Min(1, { message: 'priceAfterDiscount must be at least 1 L.E' })
-  @Max(20000, { message: 'priceAfterDiscount must be at least 20000 L.E' })
+  @Max(20000, { message: 'priceAfterDiscount must be at max 20000 L.E' })
   priceAfterDiscount: number;
 
   @IsOptional()

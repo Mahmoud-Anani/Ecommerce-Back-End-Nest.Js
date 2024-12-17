@@ -17,7 +17,7 @@ export class ProductService {
     });
 
     if (product) {
-      throw new HttpException('This Product Alridy Exist', 400);
+      throw new HttpException('This Product already Exist', 400);
     }
 
     const newProduct = await (
