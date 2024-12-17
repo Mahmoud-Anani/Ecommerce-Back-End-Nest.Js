@@ -14,8 +14,6 @@ import { RequestProductModule } from './request-product/request-product.module';
 import { TexModule } from './tex/tex.module';
 import { ProductModule } from './product/product.module';
 import { ReviewModule } from './review/review.module';
-import { CartModule } from './cart/cart.module';
-import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -46,7 +44,6 @@ import { CartModule } from './cart/cart.module';
     TexModule,
     ProductModule,
     ReviewModule,
-    CartModule,
   ],
   controllers: [],
   providers: [],
