@@ -63,8 +63,17 @@ export class CartController {
     return this.cartService.update(productId, user_id, updateCartItemsDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cartService.remove(+id);
+  //  @docs   Can Only User delete cartItems
+  //  @Route  DELETE /api/v1/cart/:productId
+  //  @access Private [User]
+  @Delete(':productId')
+  @Roles(['user'])
+  @UseGuards(AuthGuard)
+  remove(@Param('productId') productId: string, @Req() req) {
+    if (req.user.role.toLowerCase() === 'admin') {
+      throw new UnauthorizedException();
+    }
+    const user_id = req.user._id;
+    return this.cartService.remove(productId, user_id);
   }
 }

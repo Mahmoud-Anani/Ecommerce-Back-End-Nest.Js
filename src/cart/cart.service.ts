@@ -170,7 +170,43 @@ export class CartService {
     };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cart`;
+  async remove(productId: string, user_id: string) {
+    const cart = await this.cartModule
+      .findOne({ user: user_id })
+      .populate(
+        'cartItems.productId',
+        'price title description priceAfterDiscount _id',
+      );
+    if (!cart) {
+      throw new NotFoundException('Not Found Cart');
+    }
+    const indexProductUpdate = cart.cartItems.findIndex(
+      (item) => item.productId._id.toString() === productId.toString(),
+    );
+    if (indexProductUpdate === -1) {
+      throw new NotFoundException('Not Found any product in cart');
+    }
+
+    // eslint-disable-next-line
+    // @ts-ignore
+    cart.cartItems = cart.cartItems.filter(
+      (item, index) => index !== indexProductUpdate,
+    );
+
+    // update price after delete product
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let totalPrice = 0;
+    cart.cartItems.map((item) => {
+      totalPrice += item.quantity * item.productId.price;
+    });
+    cart.totalPrice = totalPrice;
+
+    await cart.save();
+
+    return {
+      status: 200,
+      message: 'Deleted Product',
+      data: cart,
+    };
   }
 }
