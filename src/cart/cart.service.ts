@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
+import { UpdateCartItemsDto } from './dto/update-cart-items.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './cart.schema';
 import { Model } from 'mongoose';
@@ -16,7 +15,7 @@ export class CartService {
   async create(product_id: string, user_id: string) {
     const cart = await this.cartModule
       .findOne({ user: user_id })
-      .populate('cartItems.productId', 'price');
+      .populate('cartItems.productId', 'price priceAfterDiscount');
 
     const product = await this.productModule.findById(product_id);
     // not found this product
@@ -48,9 +47,10 @@ export class CartService {
             indexProduct: index,
           };
         }
-        totalPriceCartBeforAdd += item.productId.price * item.quantity;
+        totalPriceCartBeforAdd +=
+          item.productId.price * item.quantity -
+          item.productId.priceAfterDiscount;
       });
-      console.log(totalPriceCartBeforAdd);
 
       const cloneCartImtes = cart.cartItems;
       if (ifProductAlridyInsert.ifAdd) {
@@ -60,20 +60,29 @@ export class CartService {
         // @ts-ignore
         cloneCartImtes.push({ productId: product_id, color: '', quantity: 1 });
       }
+      const totalPrice = ifProductAlridyInsert.ifAdd
+        ? totalPriceCartBeforAdd +
+          (cloneCartImtes[ifProductAlridyInsert.indexProduct].productId.price -
+            cloneCartImtes[ifProductAlridyInsert.indexProduct].productId
+              .priceAfterDiscount *
+              cloneCartImtes[ifProductAlridyInsert.indexProduct].quantity)
+        : totalPriceCartBeforAdd +
+          (product.price -
+            product.priceAfterDiscount *
+              cloneCartImtes[ifProductAlridyInsert.indexProduct].quantity);
 
-      const updateCart = await this.cartModule.findOneAndUpdate(
-        { user: user_id },
-        {
-          cartItems: cloneCartImtes,
-          totalPrice: ifProductAlridyInsert.ifAdd
-            ? totalPriceCartBeforAdd +
-              cloneCartImtes[ifProductAlridyInsert.indexProduct].productId.price
-            : totalPriceCartBeforAdd + product.price,
-        },
-        {
-          new: true,
-        },
-      );
+      const updateCart = await this.cartModule
+        .findOneAndUpdate(
+          { user: user_id },
+          {
+            cartItems: cloneCartImtes,
+            totalPrice,
+          },
+          {
+            new: true,
+          },
+        )
+        .populate('cartItems.productId', 'title description');
       // add sacand product=> quantity+1
       return {
         status: 200,
@@ -83,15 +92,17 @@ export class CartService {
     } else {
       // else user don't have cart=> cart cart, insert product (productId)
 
-      const newCart = await this.cartModule.create({
-        cartItems: [
-          {
-            productId: product_id,
-          },
-        ],
-        totalPrice: product.price,
-        user: user_id,
-      });
+      const newCart = await (
+        await this.cartModule.create({
+          cartItems: [
+            {
+              productId: product_id,
+            },
+          ],
+          totalPrice: product.price - product.priceAfterDiscount,
+          user: user_id,
+        })
+      ).populate('cartItems.productId', 'title description');
       return {
         status: 200,
         message: 'Created Cart and Insert Product',
@@ -109,8 +120,54 @@ export class CartService {
     return `This action returns a #${id} cart`;
   }
 
-  update(id: number, updateCartDto: UpdateCartDto) {
-    return `This action updates a #${id} cart`;
+  async update(
+    productId: string,
+    user_id: string,
+    updateCartItemsDto: UpdateCartItemsDto,
+  ) {
+    const cart = await this.cartModule
+      .findOne({ user: user_id })
+      .populate(
+        'cartItems.productId',
+        'price title description priceAfterDiscount _id',
+      );
+
+    if (!cart) {
+      const result = await this.create(productId, user_id);
+      return result;
+    }
+
+    const indexProductUpdate = cart.cartItems.findIndex(
+      (item) => item.productId._id.toString() === productId.toString(),
+    );
+
+    if (indexProductUpdate === -1) {
+      throw new NotFoundException('Not Found any product in cart');
+    }
+
+    // update color
+    if (updateCartItemsDto.color) {
+      cart.cartItems[indexProductUpdate].color = updateCartItemsDto.color;
+    }
+    // update quantity
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let totalPrice = 0;
+    if (updateCartItemsDto.quantity) {
+      cart.cartItems[indexProductUpdate].quantity = updateCartItemsDto.quantity;
+      cart.cartItems.map((item) => {
+        totalPrice +=
+          item.quantity * item.productId.price -
+          item.productId.priceAfterDiscount * item.quantity;
+      });
+      cart.totalPrice = totalPrice;
+    }
+
+    await cart.save();
+    return {
+      status: 200,
+      message: 'Product Updated',
+      data: cart,
+    };
   }
 
   remove(id: number) {

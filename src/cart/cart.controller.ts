@@ -9,10 +9,10 @@ import {
   UseGuards,
   Req,
   UnauthorizedException,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
+import { UpdateCartItemsDto } from './dto/update-cart-items.dto';
 import { Roles } from 'src/user/decorator/Roles.decorator';
 import { AuthGuard } from 'src/user/guard/Auth.guard';
 
@@ -44,9 +44,23 @@ export class CartController {
     return this.cartService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartService.update(+id, updateCartDto);
+  //  @docs   Can Only User update cartItems
+  //  @Route  PATCH /api/v1/cart/:productId
+  //  @access Private [User]
+  @Patch(':productId')
+  @Roles(['user'])
+  @UseGuards(AuthGuard)
+  update(
+    @Param('productId') productId: string,
+    @Body(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
+    updateCartItemsDto: UpdateCartItemsDto,
+    @Req() req,
+  ) {
+    if (req.user.role.toLowerCase() === 'admin') {
+      throw new UnauthorizedException();
+    }
+    const user_id = req.user._id;
+    return this.cartService.update(productId, user_id, updateCartItemsDto);
   }
 
   @Delete(':id')

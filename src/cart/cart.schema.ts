@@ -32,6 +32,7 @@ export class Cart {
       productId: {
         _id: string;
         price: number;
+        priceAfterDiscount: number;
       };
       quantity: number;
       color: string;
