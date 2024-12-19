@@ -116,8 +116,21 @@ export class CartService {
     return `This action returns all cart`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cart`;
+  async findOne(user_id: string) {
+    const cart = await this.cartModule
+      .findOne({ user: user_id })
+      .select('-__v');
+    if (!cart) {
+      throw new NotFoundException(
+        `You don't hava a cart please go to add prducts`,
+      );
+    }
+
+    return {
+      status: 200,
+      message: 'Found Cart',
+      data: cart,
+    };
   }
 
   async update(

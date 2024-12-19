@@ -34,14 +34,23 @@ export class CartController {
     return this.cartService.create(productId, user_id);
   }
 
-  @Get()
-  findAll() {
-    return this.cartService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.cartService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cartService.findOne(+id);
+  //  @docs   Can Only User Get Cart
+  //  @Route  GET /api/v1/cart
+  //  @access Private [User]
+  @Get()
+  @Roles(['user'])
+  @UseGuards(AuthGuard)
+  findOne(@Req() req) {
+    if (req.user.role.toLowerCase() === 'admin') {
+      throw new UnauthorizedException();
+    }
+    const user_id = req.user._id;
+    return this.cartService.findOne(user_id);
   }
 
   //  @docs   Can Only User update cartItems
