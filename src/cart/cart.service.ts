@@ -12,22 +12,7 @@ export class CartService {
     @InjectModel(Product.name) private readonly productModule: Model<Product>,
   ) {}
 
-  async create(product_id: string, user_id: string) {
-    /*
-    1- create=>'67602bfc8532d2502428d3c4' {cartItems=[{prdocutId:'67602bfc8532d2502428d3c4', quantity:1, color:''}], totalPrice:500}
-    2- create=>'67602bfc8532d2502428d3c4' {cartItems=[{prdocutId:'67602bfc8532d2502428d3c4', quantity:2, color:''}], totalPrice:500}
-    ifProductAlridyInsert.ifAdd=true
-    ifProductAlridyInsert.indexProduct=0
-    totalPriceCartBeforAdd=500
-
-      const totalPrice = 500
-
-================================================================
-1- price=1000-500 totalPrice= 500
-2- price=1000 - 500 =500, totalPrice= 1000
-
-    */
-
+  async create(product_id: string, user_id: string, isElse?: boolean) {
     const cart = await this.cartModule
       .findOne({ user: user_id })
       .populate('cartItems.productId', 'price priceAfterDiscount');
@@ -41,93 +26,71 @@ export class CartService {
     if (product.quantity <= 0) {
       throw new NotFoundException('Not Found quantity on this product');
     }
+
     // if user have cart=> insert product (productId)
     if (cart) {
       // add first product=> insert product in cart
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      let ifProductAlridyInsert: {
-        ifAdd: boolean;
-        indexProduct: number;
-      } = {
-        ifAdd: false,
-        indexProduct: 0,
-      };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      let totalPriceCartBeforAdd = 0;
-      // cartItems: [{},{},{}]
-      cart.cartItems.map((item, index) => {
-        if (product_id.toString() === item.productId._id.toString()) {
-          ifProductAlridyInsert = {
-            ifAdd: true,
-            indexProduct: index,
-          };
-        }
-        totalPriceCartBeforAdd +=
-          item.productId.price * item.quantity -
-          item.productId.priceAfterDiscount;
-      });
 
-      const cloneCartImtes = cart.cartItems;
-      if (ifProductAlridyInsert.ifAdd) {
-        cloneCartImtes[ifProductAlridyInsert.indexProduct].quantity += 1;
+      const indexIfProductAlridyInsert = cart.cartItems.findIndex(
+        // -1 not found
+        (item) => item.productId._id.toString() === product_id.toString(),
+      );
+
+      if (indexIfProductAlridyInsert !== -1) {
+        cart.cartItems[indexIfProductAlridyInsert].quantity += 1;
       } else {
         // eslint-disable-next-line
         // @ts-ignore
-        cloneCartImtes.push({ productId: product_id, color: '', quantity: 1 });
+        cart.cartItems.push({ productId: product_id, color: '', quantity: 1 });
       }
 
-      const totalPrice = ifProductAlridyInsert.ifAdd
-        ? totalPriceCartBeforAdd +
-          (cloneCartImtes[ifProductAlridyInsert.indexProduct].productId.price -
-            cloneCartImtes[ifProductAlridyInsert.indexProduct].productId
-              .priceAfterDiscount *
-              cloneCartImtes[ifProductAlridyInsert.indexProduct].quantity)
-        : totalPriceCartBeforAdd +
-          (product.price -
-            product.priceAfterDiscount *
-              cloneCartImtes[ifProductAlridyInsert.indexProduct].quantity);
+      await cart.populate('cartItems.productId', 'price priceAfterDiscount');
 
-      const updateCart = await this.cartModule
-        .findOneAndUpdate(
-          { user: user_id },
-          {
-            cartItems: cloneCartImtes,
-            totalPrice,
-          },
-          {
-            new: true,
-          },
-        )
-        .populate('cartItems.productId', 'title description');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      let totalPriceAfterInsert = 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      let totalDiscountPriceAfterInsert = 0;
+
+      cart.cartItems.map((item) => {
+        totalPriceAfterInsert += item.quantity * item.productId.price;
+        totalDiscountPriceAfterInsert +=
+          item.quantity * item.productId.priceAfterDiscount;
+      });
+
+      cart.totalPrice = totalPriceAfterInsert - totalDiscountPriceAfterInsert;
+
+      await cart.save();
       // add sacand product=> quantity+1
-      return {
-        status: 200,
-        message: 'Insert Product',
-        data: updateCart,
-      };
+      if (isElse) {
+        return cart;
+      } else {
+        return {
+          status: 200,
+          message: 'Created Cart and Insert Product',
+          data: cart,
+        };
+      }
     } else {
-      // else user don't have cart=> cart cart, insert product (productId)
+      // else user don't have cart=> create cart
 
-      const newCart = await (
-        await this.cartModule.create({
-          cartItems: [
-            {
-              productId: product_id,
-            },
-          ],
-          totalPrice: product.price - product.priceAfterDiscount,
-          user: user_id,
-        })
-      ).populate('cartItems.productId', 'title description');
+      await this.cartModule.create({
+        cartItems: [],
+        totalPrice: 0,
+        user: user_id,
+      });
+      const inserProduct = await this.create(
+        product_id,
+        user_id,
+        (isElse = true),
+      );
       return {
         status: 200,
         message: 'Created Cart and Insert Product',
-        data: newCart,
+        data: inserProduct,
       };
     }
   }
 
-  //
   findAll() {
     return `This action returns all cart`;
   }
@@ -161,6 +124,8 @@ export class CartService {
         'price title description priceAfterDiscount _id',
       );
 
+    const product = await this.productModule.findById(productId);
+
     if (!cart) {
       const result = await this.create(productId, user_id);
       return result;
@@ -179,16 +144,23 @@ export class CartService {
       cart.cartItems[indexProductUpdate].color = updateCartItemsDto.color;
     }
     // update quantity
+    if (updateCartItemsDto.quantity > product.quantity) {
+      throw new NotFoundException('Not Found quantity on this product');
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let totalPrice = 0;
+    let totalPriceAfterUpdated = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let totalDiscountPriceAfterUpdate = 0;
+
     if (updateCartItemsDto.quantity) {
       cart.cartItems[indexProductUpdate].quantity = updateCartItemsDto.quantity;
       cart.cartItems.map((item) => {
-        totalPrice +=
-          item.quantity * item.productId.price -
-          item.productId.priceAfterDiscount * item.quantity;
+        totalPriceAfterUpdated += item.quantity * item.productId.price;
+        totalDiscountPriceAfterUpdate +=
+          item.quantity * item.productId.priceAfterDiscount;
       });
-      cart.totalPrice = totalPrice;
+      cart.totalPrice = totalPriceAfterUpdated - totalDiscountPriceAfterUpdate;
     }
 
     await cart.save();
@@ -224,11 +196,17 @@ export class CartService {
 
     // update price after delete product
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let totalPrice = 0;
+    let totalPriceAfterInsert = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let totalDiscountPriceAfterInsert = 0;
+
     cart.cartItems.map((item) => {
-      totalPrice += item.quantity * item.productId.price;
+      totalPriceAfterInsert += item.quantity * item.productId.price;
+      totalDiscountPriceAfterInsert +=
+        item.quantity * item.productId.priceAfterDiscount;
     });
-    cart.totalPrice = totalPrice;
+
+    cart.totalPrice = totalPriceAfterInsert - totalDiscountPriceAfterInsert;
 
     await cart.save();
 
