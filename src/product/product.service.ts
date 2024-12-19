@@ -19,6 +19,13 @@ export class ProductService {
     if (product) {
       throw new HttpException('This Product already Exist', 400);
     }
+    const priceAfterDiscount = createProductDto?.priceAfterDiscount || 0;
+    if (createProductDto.price < priceAfterDiscount) {
+      throw new HttpException(
+        'Must be price After discount greater than price',
+        400,
+      );
+    }
 
     const newProduct = await (
       await this.productModel.create(createProductDto)
@@ -121,7 +128,15 @@ export class ProductService {
     if (product.quantity < updateProductDto.sold) {
       throw new HttpException('Thie Quantity is < sold', 400);
     }
-
+    const price = updateProductDto?.price || product.price;
+    const priceAfterDiscount =
+      updateProductDto?.priceAfterDiscount || product.priceAfterDiscount;
+    if (price < priceAfterDiscount) {
+      throw new HttpException(
+        'Must be price After discount greater than price',
+        400,
+      );
+    }
     return {
       status: 200,
       message: 'Product Updated successfully',
