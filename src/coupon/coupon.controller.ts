@@ -68,6 +68,10 @@ export class CouponController {
     @Body(new ValidationPipe({ forbidNonWhitelisted: true }))
     updateCouponDto: UpdateCouponDto,
   ) {
+    const isExpired = new Date(updateCouponDto.expireDate) > new Date();
+    if (!isExpired) {
+      throw new HttpException("Coupon can't be expired", 400);
+    }
     return this.couponService.update(id, updateCouponDto);
   }
 

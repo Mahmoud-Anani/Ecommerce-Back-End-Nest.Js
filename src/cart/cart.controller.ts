@@ -34,10 +34,19 @@ export class CartController {
     return this.cartService.create(productId, user_id);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.cartService.findAll();
-  // }
+  //  @docs   Can Only User Apply Coupons
+  //  @Route  POST /api/v1/cart/coupon
+  //  @access Private [User]
+  @Post('/coupon/:couponName')
+  @Roles(['user'])
+  @UseGuards(AuthGuard)
+  applyCoupon(@Param('couponName') couponName: string, @Req() req) {
+    if (req.user.role.toLowerCase() === 'admin') {
+      throw new UnauthorizedException();
+    }
+    const user_id = req.user._id;
+    return this.cartService.applyCoupon(user_id, couponName);
+  }
 
   //  @docs   Can Only User Get Cart
   //  @Route  GET /api/v1/cart

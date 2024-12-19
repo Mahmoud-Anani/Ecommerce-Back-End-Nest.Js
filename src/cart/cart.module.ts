@@ -4,6 +4,7 @@ import { CartController } from './cart.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Cart, cartSchema } from './cart.schema';
 import { Product, productSchema } from 'src/product/product.schema';
+import { Coupon, couponSchema } from 'src/coupon/coupon.schema';
 
 @Module({
   imports: [
@@ -15,6 +16,10 @@ import { Product, productSchema } from 'src/product/product.schema';
       {
         name: Product.name,
         schema: productSchema,
+      },
+      {
+        name: Coupon.name,
+        schema: couponSchema,
       },
     ]),
   ],

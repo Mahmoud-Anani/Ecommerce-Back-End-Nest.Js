@@ -1,15 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateCartItemsDto } from './dto/update-cart-items.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './cart.schema';
 import { Model } from 'mongoose';
 import { Product } from 'src/product/product.schema';
+import { Coupon } from 'src/coupon/coupon.schema';
 
 @Injectable()
 export class CartService {
   constructor(
     @InjectModel(Cart.name) private readonly cartModule: Model<Cart>,
     @InjectModel(Product.name) private readonly productModule: Model<Product>,
+    @InjectModel(Coupon.name) private readonly couponModule: Model<Coupon>,
   ) {}
 
   async create(product_id: string, user_id: string, isElse?: boolean) {
@@ -91,13 +93,47 @@ export class CartService {
     }
   }
 
-  findAll() {
-    return `This action returns all cart`;
+  async applyCoupon(user_id: string, couponName: string) {
+    const cart = await this.cartModule.findOne({ user: user_id });
+    const coupon = await this.couponModule.findOne({ name: couponName });
+
+    if (!cart) {
+      throw new NotFoundException('Not Found Cart');
+    }
+    if (!coupon) {
+      throw new HttpException('Invalid coupon', 400);
+    }
+    const isExpired = new Date(coupon.expireDate) > new Date();
+    if (!isExpired) {
+      throw new HttpException('Invalid coupon', 400);
+    }
+
+    const ifCouponAlredyUsed = cart.coupons.findIndex(
+      (item) => item.name === couponName,
+    );
+    if (ifCouponAlredyUsed !== -1) {
+      throw new HttpException('Coupon alredy used', 400);
+    }
+
+    if (cart.totalPrice <= 0) {
+      throw new HttpException('You have full discount', 400);
+    }
+
+    cart.coupons.push({ name: coupon.name, couponId: coupon._id.toString() });
+    cart.totalPrice = cart.totalPrice - coupon.discount;
+    await cart.save();
+
+    return {
+      status: 200,
+      message: 'Coupon Applied',
+      data: cart,
+    };
   }
 
   async findOne(user_id: string) {
     const cart = await this.cartModule
       .findOne({ user: user_id })
+      .populate('cartItems.productId', 'price title description')
       .select('-__v');
     if (!cart) {
       throw new NotFoundException(
