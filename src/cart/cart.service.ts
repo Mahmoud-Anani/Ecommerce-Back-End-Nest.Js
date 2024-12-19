@@ -13,6 +13,21 @@ export class CartService {
   ) {}
 
   async create(product_id: string, user_id: string) {
+    /*
+    1- create=>'67602bfc8532d2502428d3c4' {cartItems=[{prdocutId:'67602bfc8532d2502428d3c4', quantity:1, color:''}], totalPrice:500}
+    2- create=>'67602bfc8532d2502428d3c4' {cartItems=[{prdocutId:'67602bfc8532d2502428d3c4', quantity:2, color:''}], totalPrice:500}
+    ifProductAlridyInsert.ifAdd=true
+    ifProductAlridyInsert.indexProduct=0
+    totalPriceCartBeforAdd=500
+
+      const totalPrice = 500
+
+================================================================
+1- price=1000-500 totalPrice= 500
+2- price=1000 - 500 =500, totalPrice= 1000
+
+    */
+
     const cart = await this.cartModule
       .findOne({ user: user_id })
       .populate('cartItems.productId', 'price priceAfterDiscount');
@@ -60,6 +75,7 @@ export class CartService {
         // @ts-ignore
         cloneCartImtes.push({ productId: product_id, color: '', quantity: 1 });
       }
+
       const totalPrice = ifProductAlridyInsert.ifAdd
         ? totalPriceCartBeforAdd +
           (cloneCartImtes[ifProductAlridyInsert.indexProduct].productId.price -
