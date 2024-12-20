@@ -15,9 +15,25 @@ export class ProductService {
     const product = await this.productModel.findOne({
       title: createProductDto.title,
     });
+    const category = await this.productModel.findById(
+      createProductDto.category,
+    );
 
     if (product) {
       throw new HttpException('This Product already Exist', 400);
+    }
+
+    if (!category) {
+      throw new HttpException('This Category not Exist', 400);
+    }
+
+    if (createProductDto.subCategory) {
+      const subCategory = await this.productModel.findById(
+        createProductDto.subCategory,
+      );
+      if (!subCategory) {
+        throw new HttpException('This Sub Category not Exist', 400);
+      }
     }
     const priceAfterDiscount = createProductDto?.priceAfterDiscount || 0;
     if (createProductDto.price < priceAfterDiscount) {
@@ -122,12 +138,31 @@ export class ProductService {
 
   async update(id: string, updateProductDto: UpdateProductDto) {
     const product = await this.productModel.findById(id);
+
     if (!product) {
       throw new NotFoundException('Procut Not Found');
     }
+    if (updateProductDto.category) {
+      const category = await this.productModel.findById(
+        updateProductDto.category,
+      );
+      if (!category) {
+        throw new HttpException('This Category not Exist', 400);
+      }
+    }
+    if (updateProductDto.subCategory) {
+      const subCategory = await this.productModel.findById(
+        updateProductDto.subCategory,
+      );
+      if (!subCategory) {
+        throw new HttpException('This Sub Category not Exist', 400);
+      }
+    }
+
     if (product.quantity < updateProductDto.sold) {
       throw new HttpException('Thie Quantity is < sold', 400);
     }
+
     const price = updateProductDto?.price || product.price;
     const priceAfterDiscount =
       updateProductDto?.priceAfterDiscount || product.priceAfterDiscount;
@@ -137,6 +172,7 @@ export class ProductService {
         400,
       );
     }
+
     return {
       status: 200,
       message: 'Product Updated successfully',
