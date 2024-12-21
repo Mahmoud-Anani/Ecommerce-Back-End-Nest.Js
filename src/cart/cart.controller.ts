@@ -19,6 +19,7 @@ import { AuthGuard } from 'src/user/guard/Auth.guard';
 @Controller('v1/cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
+  // ======== For User ========== \\
 
   //  @docs   Can Only User Logged Create Cart and add products in cart
   //  @Route  POST /api/v1/cart/:productId
@@ -54,7 +55,7 @@ export class CartController {
   @Get()
   @Roles(['user'])
   @UseGuards(AuthGuard)
-  findOne(@Req() req) {
+  findOneForUser(@Req() req) {
     if (req.user.role.toLowerCase() === 'admin') {
       throw new UnauthorizedException();
     }
@@ -93,5 +94,17 @@ export class CartController {
     }
     const user_id = req.user._id;
     return this.cartService.remove(productId, user_id);
+  }
+
+  // ======== For Admin ========== \\
+
+  //  @docs   Can Admin Get Any Cart of user
+  //  @Route  GET /api/v1/cart/admin/:userId
+  //  @access Private [Admin]
+  @Get('/admin/:userId')
+  @Roles(['admin'])
+  @UseGuards(AuthGuard)
+  findOneForAdmin(@Param('userId') userId:string) {
+    return this.cartService.findOneForAdmin(userId);
   }
 }

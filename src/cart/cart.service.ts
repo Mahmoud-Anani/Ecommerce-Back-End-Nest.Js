@@ -252,4 +252,20 @@ export class CartService {
       data: cart,
     };
   }
+
+  // ===== For Admin ======== \\
+
+  async findOneForAdmin(userId: string) {
+    const cart = await this.cartModule
+      .findOne({ user: userId })
+      .populate('cartItems.productId', 'price title description');
+    if (!cart) {
+      throw new NotFoundException('Not Found Cart');
+    }
+    return {
+      status: 200,
+      message: 'Found Cart',
+      data: cart,
+    };
+  }
 }
