@@ -268,4 +268,20 @@ export class CartService {
       data: cart,
     };
   }
+
+  async findAllForAdmin() {
+    const carts = await this.cartModule
+      .find()
+      .select('-__v')
+      .populate(
+        'cartItems.productId user coupons.couponId',
+        'name email expireDate price title description',
+      );
+    return {
+      status: 200,
+      message: 'Found All Carts',
+      length: carts.length,
+      data: carts,
+    };
+  }
 }

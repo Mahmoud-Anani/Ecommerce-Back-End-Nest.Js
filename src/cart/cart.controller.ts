@@ -104,7 +104,16 @@ export class CartController {
   @Get('/admin/:userId')
   @Roles(['admin'])
   @UseGuards(AuthGuard)
-  findOneForAdmin(@Param('userId') userId:string) {
+  findOneForAdmin(@Param('userId') userId: string) {
     return this.cartService.findOneForAdmin(userId);
+  }
+  //  @docs   Can Admin Get All Carts
+  //  @Route  GET /api/v1/cart/admin
+  //  @access Private [Admin]
+  @Get('/admin')
+  @Roles(['admin'])
+  @UseGuards(AuthGuard)
+  findAllForAdmin() {
+    return this.cartService.findAllForAdmin();
   }
 }

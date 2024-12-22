@@ -15,6 +15,7 @@ import { TexModule } from './tex/tex.module';
 import { ProductModule } from './product/product.module';
 import { ReviewModule } from './review/review.module';
 import { CartModule } from './cart/cart.module';
+import { CartAdminModule } from './cart-admin/cart-admin.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { CartModule } from './cart/cart.module';
     ProductModule,
     ReviewModule,
     CartModule,
+    CartAdminModule,
   ],
   controllers: [],
   providers: [],
