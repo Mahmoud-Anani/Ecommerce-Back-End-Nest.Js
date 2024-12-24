@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AcceptOrderCashDto, CreateOrderDto } from './dto/create-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './order.schema';
@@ -18,7 +18,8 @@ export class OrderService {
     @InjectModel(Cart.name) private readonly cartModel: Model<Cart>,
     @InjectModel(Tax.name) private readonly taxModel: Model<Tax>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
-  ) {}
+  ) { }
+  
   async create(
     user_id: string,
     paymentMethodType: 'card' | 'cash',
@@ -209,11 +210,11 @@ export class OrderService {
     };
   }
 
-  async updatePaidCard(body: any, sig: any, endpointSecret: string) {
+  async updatePaidCard(payload: any, sig: any, endpointSecret: string) {
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
+      event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
     } catch (err) {
       console.log(`Webhook Error: ${err.message}`);
       return;
@@ -221,9 +222,36 @@ export class OrderService {
 
     // Handle the event
     switch (event.type) {
-      case 'payment_intent.succeeded':
-        const paymentIntentSucceeded = event.data.object;
-        // Then define and call a function to handle the event payment_intent.succeeded
+      case 'checkout.session.completed':
+        const sessionId = event.data.object.id;
+
+        const order = await this.orderModel.findOne({ sessionId });
+        order.isPaid = true;
+        order.isDeliverd = true;
+        order.paidAt = new Date();
+        order.deliverdAt = new Date();
+
+        const cart = await this.cartModel
+          .findOne({ user: order.user.toString() })
+          .populate('cartItems.productId user');
+
+        cart.cartItems.forEach(async (item) => {
+          await this.productModel.findByIdAndUpdate(
+            item.productId,
+            { $inc: { quantity: -item.quantity, sold: item.quantity } },
+            { new: true },
+          );
+        });
+
+        // reset Cart
+        await this.cartModel.findOneAndUpdate(
+          { user: order.user.toString() },
+          { cartItems: [], totalPrice: 0 },
+        );
+
+        await order.save();
+        await cart.save();
+
         break;
       // ... handle other event types
       default:

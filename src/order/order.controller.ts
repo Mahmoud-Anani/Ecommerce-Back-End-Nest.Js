@@ -12,11 +12,14 @@ import {
   NotFoundException,
   UseGuards,
   Query,
+  RawBodyRequest,
+  Headers,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { AcceptOrderCashDto, CreateOrderDto } from './dto/create-order.dto';
 import { AuthGuard } from 'src/user/guard/Auth.guard';
 import { Roles } from 'src/user/decorator/Roles.decorator';
+import { Request } from 'express';
 
 @Controller('v1/cart/checkout')
 export class OrderController {
@@ -98,16 +101,19 @@ export class CheckoutCardController {
   //  @Route  PATCH /api/v1/checkout/session
   //  @access Private [Stripe]
   @Post()
-  updatePaidCard(@Req() request: any) {
+  updatePaidCard(
+    @Headers('stripe-signature') sig,
+    @Req() request: RawBodyRequest<Request>,
+  ) {
     const endpointSecret =
       'whsec_db59966519a65529ae568ade70303bf419be37a47f3777c18a8a4f1c79c8a07a';
-    const sig = request.headers['stripe-signature'];
-    const body = request.body;
-    console.log(sig);
-    console.log('===========================');
-    console.log(body);
 
-    // parseing body=> express.raw({type: 'application/json'})
-    return this.orderService.updatePaidCard(body, sig, endpointSecret);
+    const payload = request.rawBody;
+
+    return this.orderService.updatePaidCard(payload, sig, endpointSecret);
   }
 }
+/*
+stripe login
+stripe listen --forward-to localhost:3000/api/v1/checkout/session
+*/
