@@ -71,13 +71,3 @@ export class ProductController {
     return this.productService.remove(id);
   }
 }
-/*
-gte=> اكبر من او يساوي
-gt=>اكبير من 
-
-
-
-lte=> اصغر من او يساوي
-lt=> اصغر من 
-
-*/

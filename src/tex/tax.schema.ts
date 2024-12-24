@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type texDocument = HydratedDocument<Tex>;
+export type texDocument = HydratedDocument<Tax>;
 
 @Schema({ timestamps: true })
-export class Tex {
+export class Tax {
   @Prop({
     type: Number,
     default: 0,
   })
-  texPrice: string;
+  taxPrice: string;
   @Prop({
     type: Number,
     default: 0,
@@ -17,4 +17,4 @@ export class Tex {
   shippingPrice: string;
 }
 
-export const texSchema = SchemaFactory.createForClass(Tex);
+export const taxSchema = SchemaFactory.createForClass(Tax);

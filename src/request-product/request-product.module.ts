@@ -3,13 +3,13 @@ import { RequestProductService } from './request-product.service';
 import { RequestProductController } from './request-product.controller';
 import { RequestProduct, requestProductSchema } from './request-product.schema';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/user/user.schema';
+import { User, userSchema } from 'src/user/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: RequestProduct.name, schema: requestProductSchema },
-      { name: User.name, schema: UserSchema },
+      { name: User.name, schema: userSchema },
     ]),
   ],
   controllers: [RequestProductController],

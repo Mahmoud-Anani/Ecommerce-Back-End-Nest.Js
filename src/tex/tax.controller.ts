@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Body, Delete, UseGuards } from '@nestjs/common';
-import { TexService } from './tex.service';
-import { CreateTexDto } from './dto/create-tex.dto';
+import { TaxService } from './tax.service';
+import { CreateTexDto } from './dto/create-tax.dto';
 import { Roles } from 'src/user/decorator/Roles.decorator';
 import { AuthGuard } from 'src/user/guard/Auth.guard';
 
 @Controller('v1/tex')
-export class TexController {
-  constructor(private readonly texService: TexService) {}
+export class TaxController {
+  constructor(private readonly texService: TaxService) {}
 
-  //  @docs  Can Admin Create Or Update Tex
+  //  @docs  Can Admin Create Or Update Tax
   //  @Route  POST /api/v1/tex
   //  @access Private [admin]
   @Post()
@@ -18,7 +18,7 @@ export class TexController {
     return this.texService.createOrUpdate(createTexDto);
   }
 
-  //  @docs  Can Admin Get Tex
+  //  @docs  Can Admin Get Tax
   //  @Route  GET /api/v1/tex
   //  @access Private [admin]
   @Get()

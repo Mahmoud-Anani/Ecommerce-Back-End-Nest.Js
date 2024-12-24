@@ -11,11 +11,11 @@ import { BrandModule } from './brand/brand.module';
 import { CouponModule } from './coupon/coupon.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { RequestProductModule } from './request-product/request-product.module';
-import { TexModule } from './tex/tex.module';
+import { TaxModule } from './tex/tax.module';
 import { ProductModule } from './product/product.module';
 import { ReviewModule } from './review/review.module';
 import { CartModule } from './cart/cart.module';
-import { CartAdminModule } from './cart-admin/cart-admin.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -43,11 +43,11 @@ import { CartAdminModule } from './cart-admin/cart-admin.module';
     CouponModule,
     SuppliersModule,
     RequestProductModule,
-    TexModule,
+    TaxModule,
     ProductModule,
     ReviewModule,
     CartModule,
-    CartAdminModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],
