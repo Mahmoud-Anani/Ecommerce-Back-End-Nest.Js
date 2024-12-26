@@ -8,7 +8,7 @@ import {
 import { Order, orderSchema } from './order.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Cart, cartSchema } from 'src/cart/cart.schema';
-import { Tax, taxSchema } from 'src/tex/tax.schema';
+import { Tax, taxSchema } from 'src/tax/tax.schema';
 import { Product, productSchema } from 'src/product/product.schema';
 
 @Module({

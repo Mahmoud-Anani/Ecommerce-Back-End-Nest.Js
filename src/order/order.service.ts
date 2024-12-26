@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './order.schema';
 import { Model } from 'mongoose';
 import { Cart } from 'src/cart/cart.schema';
-import { Tax } from 'src/tex/tax.schema';
+import { Tax } from 'src/tax/tax.schema';
 import { Product } from 'src/product/product.schema';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const stripe = require('stripe')(
