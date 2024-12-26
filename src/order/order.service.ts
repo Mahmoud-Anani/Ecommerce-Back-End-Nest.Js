@@ -18,8 +18,8 @@ export class OrderService {
     @InjectModel(Cart.name) private readonly cartModel: Model<Cart>,
     @InjectModel(Tax.name) private readonly taxModel: Model<Tax>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
-  ) { }
-  
+  ) {}
+
   async create(
     user_id: string,
     paymentMethodType: 'card' | 'cash',
@@ -152,12 +152,14 @@ export class OrderService {
     };
   }
 
-  findAll() {
-    return `This action returns all order`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findAllOrdersOnUser(user_id: string) {
+    const orders = await this.orderModel.find({ user: user_id });
+    return {
+      status: 200,
+      message: 'Orders found',
+      length: orders.length,
+      data: orders,
+    };
   }
 
   async updatePaidCash(orderId: string, updateOrderDto: AcceptOrderCashDto) {
@@ -257,9 +259,5 @@ export class OrderService {
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
   }
 }

@@ -1,11 +1,9 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
   Patch,
   Param,
-  Delete,
   ValidationPipe,
   Req,
   UnauthorizedException,
@@ -14,6 +12,7 @@ import {
   Query,
   RawBodyRequest,
   Headers,
+  Get,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { AcceptOrderCashDto, CreateOrderDto } from './dto/create-order.dto';
@@ -22,7 +21,7 @@ import { Roles } from 'src/user/decorator/Roles.decorator';
 import { Request } from 'express';
 
 @Controller('v1/cart/checkout')
-export class OrderController {
+export class OrderCheckoutController {
   constructor(private readonly orderService: OrderService) {}
 
   //  @docs   User Can Create Order and Checkout session
@@ -63,16 +62,6 @@ export class OrderController {
     );
   }
 
-  @Get()
-  findAll() {
-    return this.orderService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
-  }
-
   //  @docs   Admin Can Update Order payment cash
   //  @Route  PATCH /api/v1/cart/checkout/:orderId/cash
   //  @access Private [User]
@@ -85,11 +74,6 @@ export class OrderController {
     updateOrderDto: AcceptOrderCashDto,
   ) {
     return this.orderService.updatePaidCash(orderId, updateOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
   }
 }
 
@@ -113,6 +97,26 @@ export class CheckoutCardController {
     return this.orderService.updatePaidCard(payload, sig, endpointSecret);
   }
 }
+
+@Controller('v1/order')
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
+
+  //  @docs   User Can get all order
+  //  @Route  GET /api/v1/order
+  //  @access Private [User]
+  @Get()
+  @Roles(['user'])
+  @UseGuards(AuthGuard)
+  findAllOrdersOnUser(@Req() req) {
+    if (req.user.role.toLowerCase() === 'admin') {
+      throw new UnauthorizedException();
+    }
+    const user_id = req.user._id;
+    return this.orderService.findAllOrdersOnUser(user_id);
+  }
+}
+
 /*
 stripe login
 stripe listen --forward-to localhost:3000/api/v1/checkout/session
