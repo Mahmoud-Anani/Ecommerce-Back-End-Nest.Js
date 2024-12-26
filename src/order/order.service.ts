@@ -152,16 +152,6 @@ export class OrderService {
     };
   }
 
-  async findAllOrdersOnUser(user_id: string) {
-    const orders = await this.orderModel.find({ user: user_id });
-    return {
-      status: 200,
-      message: 'Orders found',
-      length: orders.length,
-      data: orders,
-    };
-  }
-
   async updatePaidCash(orderId: string, updateOrderDto: AcceptOrderCashDto) {
     const order = await this.orderModel.findById(orderId);
     if (!order) {
@@ -259,5 +249,25 @@ export class OrderService {
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
+  }
+
+  async findAllOrdersOnUser(user_id: string) {
+    const orders = await this.orderModel.find({ user: user_id });
+    return {
+      status: 200,
+      message: 'Orders found',
+      length: orders.length,
+      data: orders,
+    };
+  }
+
+  async findAllOrders() {
+    const orders = await this.orderModel.find({});
+    return {
+      status: 200,
+      message: 'Orders found',
+      length: orders.length,
+      data: orders,
+    };
   }
 }

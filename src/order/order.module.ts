@@ -3,7 +3,8 @@ import { OrderService } from './order.service';
 import {
   CheckoutCardController,
   OrderCheckoutController,
-  OrderController,
+  OrderForAdminController,
+  OrderForUserController,
 } from './order.controller';
 import { Order, orderSchema } from './order.schema';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -23,7 +24,8 @@ import { Product, productSchema } from 'src/product/product.schema';
   controllers: [
     OrderCheckoutController,
     CheckoutCardController,
-    OrderController,
+    OrderForUserController,
+    OrderForAdminController,
   ],
   providers: [OrderService],
 })
