@@ -4,18 +4,24 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
 import { Model } from 'mongoose';
+import { Category } from 'src/category/category.schema';
+import { SubCategory } from 'src/sub-category/sub-category.schema';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    @InjectModel(Category.name)
+    private readonly categoryModule: Model<Category>,
+    @InjectModel(SubCategory.name)
+    private readonly subCategoryModule: Model<SubCategory>,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
     const product = await this.productModel.findOne({
       title: createProductDto.title,
     });
-    const category = await this.productModel.findById(
+    const category = await this.categoryModule.findById(
       createProductDto.category,
     );
 
@@ -28,7 +34,7 @@ export class ProductService {
     }
 
     if (createProductDto.subCategory) {
-      const subCategory = await this.productModel.findById(
+      const subCategory = await this.subCategoryModule.findById(
         createProductDto.subCategory,
       );
       if (!subCategory) {
@@ -143,7 +149,7 @@ export class ProductService {
       throw new NotFoundException('Procut Not Found');
     }
     if (updateProductDto.category) {
-      const category = await this.productModel.findById(
+      const category = await this.categoryModule.findById(
         updateProductDto.category,
       );
       if (!category) {
@@ -151,7 +157,7 @@ export class ProductService {
       }
     }
     if (updateProductDto.subCategory) {
-      const subCategory = await this.productModel.findById(
+      const subCategory = await this.subCategoryModule.findById(
         updateProductDto.subCategory,
       );
       if (!subCategory) {
