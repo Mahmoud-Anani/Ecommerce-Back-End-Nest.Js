@@ -1,5 +1,8 @@
 import {
   Controller,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  ParseFilePipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -21,7 +24,20 @@ export class UploadFilesController {
   @Roles(['admin', 'user'])
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  uploadImage(@UploadedFile() file: any) {
+  uploadImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: 500000,
+            message: 'File is too large must be less than 500KB',
+          }),
+          new FileTypeValidator({ fileType: 'image/png' }),
+        ],
+      }),
+    )
+    file: any,
+  ) {
     return this.cloudinaryService.uploadFile(file);
   }
 }
