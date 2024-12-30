@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { Cart } from 'src/cart/cart.schema';
 import { Tax } from 'src/tax/tax.schema';
 import { Product } from 'src/product/product.schema';
+import { MailerService } from '@nestjs-modules/mailer';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const stripe = require('stripe')(
   `sk_test_51QZW5bDG9eAcjg92snOaZ0tsxVe5hiu8zZ0OZLIJVVmE0EZE12uZCjq05V9TuzQbdAnQLke6MajzEo2kYJDPerDf00Qzy6iQhT`,
@@ -18,6 +19,7 @@ export class OrderService {
     @InjectModel(Cart.name) private readonly cartModel: Model<Cart>,
     @InjectModel(Tax.name) private readonly taxModel: Model<Tax>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    private readonly mailService: MailerService,
   ) {}
 
   async create(
@@ -183,6 +185,29 @@ export class OrderService {
         { user: order.user.toString() },
         { cartItems: [], totalPrice: 0 },
       );
+
+      // send mail
+      const htmlMessage = `
+    <html>
+      <body>
+        <h1>Order Confirmation</h1>
+        <p>Dear ${cart.user.name},</p>
+        <p>Thank you for your purchase! Your order has been successfully placed and paid for with cash.</p>
+        <p>We appreciate your business and hope you enjoy your purchase!</p>
+        <p>Best regards,</p>
+        <p>The Ecommerce-Nest.JS Team</p>
+      </body>
+    </html>
+    `;
+
+      await this.mailService.sendMail({
+        from: `Ecommerce-Nest.JS <${process.env.MAIL_USER}>`,
+        // eslint-disable-next-line
+        // @ts-ignore
+        to: cart.user.email,
+        subject: `Ecommerce-Nest.JS - Checkout Order`,
+        html: htmlMessage,
+      });
     }
 
     if (updateOrderDto.isDeliverd) {
@@ -243,6 +268,29 @@ export class OrderService {
 
         await order.save();
         await cart.save();
+
+        // send mail
+        const htmlMessage = `
+    <html>
+      <body>
+        <h1>Order Confirmation</h1>
+        <p>Dear ${cart.user.name},</p>
+        <p>Thank you for your purchase! Your order has been successfully placed and paid for with card.♥</p>
+        <p>We appreciate your business and hope you enjoy your purchase!</p>
+        <p>Best regards,</p>
+        <p>The Ecommerce-Nest.JS Team</p>
+      </body>
+    </html>
+    `;
+
+        await this.mailService.sendMail({
+          from: `Ecommerce-Nest.JS <${process.env.MAIL_USER}>`,
+          // eslint-disable-next-line
+          // @ts-ignore
+          to: cart.user.email,
+          subject: `Ecommerce-Nest.JS - Checkout Order`,
+          html: htmlMessage,
+        });
 
         break;
       // ... handle other event types

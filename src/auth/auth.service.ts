@@ -107,7 +107,7 @@ export class AuthService {
     </div>
     `;
 
-    this.mailService.sendMail({
+    await this.mailService.sendMail({
       from: `Ecommerce-Nest.JS <${process.env.MAIL_USER}>`,
       to: email,
       subject: `Ecommerce-Nest.JS - Reset Password`,

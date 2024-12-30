@@ -73,7 +73,7 @@ export class Cart {
     type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
   })
-  user: string;
+  user: typeof User;
 }
 
 export const cartSchema = SchemaFactory.createForClass(Cart);
