@@ -20,4 +20,9 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
+
+  async uploadFiles(files: any[]): Promise<CloudinaryResponse[]> {
+    return Promise.all(files.map(file => this.uploadFile(file)));
+  }
+  
 }
