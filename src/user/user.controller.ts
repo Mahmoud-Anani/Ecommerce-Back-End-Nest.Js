@@ -10,13 +10,14 @@ import {
   UseGuards,
   Query,
   Req,
+  UseFilters,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from './guard/Auth.guard';
 import { Roles } from './decorator/Roles.decorator';
-import { I18n, I18nContext } from 'nestjs-i18n';
+import { I18n, I18nContext, I18nValidationExceptionFilter } from 'nestjs-i18n';
 
 @Controller('v1/user')
 export class UserController {
@@ -28,6 +29,7 @@ export class UserController {
   @Post()
   @Roles(['admin'])
   @UseGuards(AuthGuard)
+  @UseFilters(new I18nValidationExceptionFilter())
   create(
     @Body(new ValidationPipe({ forbidNonWhitelisted: true }))
     createUserDto: CreateUserDto,

@@ -1,3 +1,5 @@
 {
-    "HELLO": "مرحبا"
+    "HELLO": "مرحبا",
+    "IS_STRING": "{property} يجب ان يكون نص",
+    "MinLength": "{property} بقيمة: \"{value}\" يجب ان يكون على الاقل {constraints.0}"
 }

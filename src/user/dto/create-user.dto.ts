@@ -11,12 +11,13 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateUserDto {
   // Name
-  @IsString({ message: 'Name must be a string' })
-  @MinLength(3, { message: 'Name must be at least 3 characters' })
-  @MaxLength(30, { message: 'Name must be at most 30 characters' })
+  @IsString({ message: i18nValidationMessage('dto.IS_STRING') }) // 'Name must be a string'
+  @MinLength(3, { message: i18nValidationMessage('dto.MinLength') }) // 'Name must be at least 3 characters'
+  @MaxLength(30, { message: i18nValidationMessage('dto.MaxLength') }) // 'Name must be at most 30 characters'
   name: string;
   // Email
   @IsString({ message: 'Email must be a string' })

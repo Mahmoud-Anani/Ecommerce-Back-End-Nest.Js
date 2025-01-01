@@ -1,3 +1,6 @@
 {
-    "HELLO": "Hello"
+    "HELLO": "Hello",
+    "IS_STRING": "{property} must be a string",
+    "MinLength": "{property} with value: \"{value}\" needs to be at least {constraints.0}",
+    "MaxLength": "{property} with value: \"{value}\" needs to be at most {constraints.0}"
 }
