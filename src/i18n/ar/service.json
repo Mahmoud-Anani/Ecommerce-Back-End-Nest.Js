@@ -1,3 +1,10 @@
 {
-    "HELLO": "مرحبا"
+    "HELLO": "مرحبا",
+    "INVALID_LIMIT": "{invalid_name} غير صحيحة",
+    "ALREADY_EXIST": "{module_name} موجود بالفعل",
+    "CREATED_SUCCESS": "تم الانشاء بنجاح {module_name}",
+    "FOUND_SUCCESS": "تم ارجاع {found_name} بنجاح",
+    "UPDATED_SUCCESS": "تم تحديث {updated_name} بنجاح",
+    "DELETED_SUCCESS": "تم حذف {deleted_name} بنجاح",
+    "NOT_FOUND": "{not_found_name} غير موجود بالفعل"
 }

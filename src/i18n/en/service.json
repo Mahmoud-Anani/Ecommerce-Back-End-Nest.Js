@@ -1,3 +1,10 @@
 {
-    "HELLO": "Hello"
+    "HELLO": "Hello",
+    "INVALID": "Invalid {invalid_name}",
+    "ALREADY_EXIST": "{module_name} already exist",
+    "CREATED_SUCCESS": "{module_name} created successfully",
+    "FOUND_SUCCESS": "{found_name} found successfully",
+    "UPDATED_SUCCESS": "{updated_name} updated successfully",
+    "DELETED_SUCCESS": "{deleted_name} deleted successfully",
+    "NOT_FOUND": "{not_found_name} not found"
 }
