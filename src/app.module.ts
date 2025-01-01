@@ -46,7 +46,7 @@ import { join } from 'path';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '600000000s' },
+      signOptions: { expiresIn: '2d' },
     }),
     AuthModule,
     MailerModule.forRoot({
