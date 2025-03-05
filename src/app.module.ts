@@ -25,6 +25,7 @@ import {
 } from 'nestjs-i18n';
 import { join } from 'path';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       signOptions: { expiresIn: '2d' },
     }),
     AuthModule,
+    OAuthModule,
     MailerModule.forRoot({
       transport: {
         service: 'gmail',
