@@ -59,11 +59,24 @@ export class AuthService {
         secret: process.env.JWT_SECRET,
       });
 
+      // create secret refresh token
+      // create payload refresh token
+      // create refresh token
+      const refresh_token = await this.jwtService.signAsync(
+        { ...payload, countEX: 5 },
+        {
+          secret: process.env.JWT_SECRET_REFRESHTOKEN,
+          expiresIn: '7d',
+        },
+      );
+      // return refresh token and access token
+
       return {
         status: 200,
         message: 'User created successfully',
         data: newUser,
         access_token: token,
+        refresh_token,
       };
     }
 
@@ -77,11 +90,24 @@ export class AuthService {
       secret: process.env.JWT_SECRET,
     });
 
+    // create secret refresh token
+    // create payload refresh token
+    // create refresh token
+    const refresh_token = await this.jwtService.signAsync(
+      { ...payload, countEX: 5 },
+      {
+        secret: process.env.JWT_SECRET_REFRESHTOKEN,
+        expiresIn: '7d',
+      },
+    );
+    // return refresh token and access token
+
     return {
       status: 200,
       message: 'User logged in successfully',
       data: user,
       access_token: token,
+      refresh_token,
     };
   }
 }
